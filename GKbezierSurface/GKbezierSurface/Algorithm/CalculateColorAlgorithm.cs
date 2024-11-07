@@ -2,18 +2,25 @@
 using GKbezierPlain.Geometry;
 using GKbezierSurface.AlgorithmConfigurations;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GKbezierSurface.Algorithm
 {
     public static class CalculateColorAlgorithm
     {
-        
+        private static Vector3 lightAnimation(int z)
+        {
+            float radius = 100.0f;
+            float speed = 0.1f;
+
+            float x = radius * (float)Math.Cos(z * speed);
+            float y = radius * (float)Math.Sin(z * speed);
+            float lightZ = 50.0f;
+
+            return new Vector3(x, y, lightZ);
+        }
+
         public static Color GetLambertColor(PointF point, CalculateColorConfiguration colorConfiguration, Triangle triangle)
         {
             var a = triangle.Vertex1.NormalRotated;
@@ -22,10 +29,12 @@ namespace GKbezierSurface.Algorithm
 
             Vector3 N = InterpolateNormal(triangle, barycentricCoords);
             float interpolatedZ = InterpolateZ(triangle, barycentricCoords);
-            
+
             Vector3 point3D = new Vector3(point.X, point.Y, interpolatedZ);
 
-            Vector3 L = point3D - new Vector3(0, 0, colorConfiguration.Z);
+            Vector3 lightSource = lightAnimation(colorConfiguration.Z);
+
+            Vector3 L = point3D - lightSource;
             if (L.LengthSquared() < 1e-6f)
             {
                 L = new Vector3(0, 0, colorConfiguration.Z);
@@ -94,12 +103,12 @@ namespace GKbezierSurface.Algorithm
 
             // Calculate dot products (cosines)
             float cosNL = Math.Max(Vector3.Dot(N, L), 0);
-            if(cosNL < 0)
+            if (cosNL < 0)
                 cosNL = 0;
             Vector3 R = 2 * cosNL * N - L; // Reflect L about N
             R = Vector3.Normalize(R);
             float cosVR = Math.Max(Vector3.Dot(V, R), 0);
-            if(cosVR < 0)
+            if (cosVR < 0)
                 cosVR = 0;
             // Calculate each RGB component separately
             float r = kd * IL.X * IO.X * cosNL + ks * IL.X * IO.X * (float)Math.Pow(cosVR, m);
@@ -113,6 +122,6 @@ namespace GKbezierSurface.Algorithm
 
             return Color.FromArgb((int)r, (int)g, (int)b);
         }
-        
+
     }
 }
