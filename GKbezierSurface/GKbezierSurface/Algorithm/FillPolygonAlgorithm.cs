@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 
@@ -9,8 +10,8 @@ namespace GKbezierPlain.Algorithm
     {
         private static List<List<Edge>> InitializeEdgeTable(PointF[] polygonPoints, out int minY, out int maxY)
         {
-            maxY = (int)polygonPoints.Max(point => point.Y);
-            minY = (int)polygonPoints.Min(point => point.Y);
+            maxY = polygonPoints.Max(point => (int)point.Y);
+            minY = polygonPoints.Min(point => (int)point.Y);
 
             var edgeTable = new List<List<Edge>>(new List<Edge>[maxY - minY + 1]);
 
@@ -46,11 +47,14 @@ namespace GKbezierPlain.Algorithm
 
             for (int y = minY; y <= maxY; y++)
             {
+                // Add new edges for this scan line
                 activeEdgeTable.AddRange(edgeTable[y - minY]);
 
+                // Remove edges where y reaches maxY
                 activeEdgeTable.RemoveAll(edge => edge.maxY == y);
 
-                activeEdgeTable = activeEdgeTable.OrderBy(edge => edge.currentX).ToList();
+                // Sort by currentX for correct ordering of intersections
+                activeEdgeTable.Sort((e1, e2) => e1.currentX.CompareTo(e2.currentX));
 
                 for (int i = 0; i < activeEdgeTable.Count - 1; i += 2)
                 {
@@ -60,13 +64,14 @@ namespace GKbezierPlain.Algorithm
                     DrawScanLine(g, y, startX, endX, color);
                 }
 
-
+                // Update currentX for each edge in the active edge table
                 foreach (var edge in activeEdgeTable)
                 {
                     edge.currentX += edge.dxdy;
                 }
             }
         }
+
 
         private static void DrawScanLine(Graphics g, int y, int startX, int endX, Brush color)
         {
@@ -79,15 +84,18 @@ namespace GKbezierPlain.Algorithm
         private class Edge
         {
             public int maxY;
-            public double currentX;
-            public double dxdy;
+            public float currentX;
+            public float dxdy;
 
             public Edge(PointF start, PointF end)
             {
                 maxY = (int)Math.Round(end.Y);
                 currentX = start.X;
-
-                dxdy = (end.X - start.X) / (end.Y - start.Y);
+                
+                //if(end.X - start.X == 0 || end.Y - start.Y ==0)
+                //    dxdy = 0;
+                //else
+                    dxdy = (float)(end.X - start.X) / (end.Y - start.Y);
             }
         }
     }

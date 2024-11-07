@@ -41,7 +41,8 @@ namespace GKbezierPlain.Geometry
             switch (drawType)
             {
                 case 0:
-                    FillPolygonAlgorithm.FillPolygon(g, points, color);
+                    FillPolygonWithBucketSort.FillPolygon(g, Brushes.Green, new Vertex[] { Vertex1, Vertex2, Vertex3 });
+                    //FillPolygonAlgorithm.FillPolygon(g, points, color);
 
                     using (Pen pen = new Pen(Color.Black, 1))
                     {

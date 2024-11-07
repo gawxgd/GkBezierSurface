@@ -47,10 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\CalculateColorAlgorithm.cs" />
+    <Compile Include="Algorithm\FillPolygonAlgorithmWithBucketSort.cs" />
     <Compile Include="Algorithm\FillPolygonAlgorithm.cs" />
     <Compile Include="Algorithm\MathHelper.cs" />
     <Compile Include="Algorithm\RotationAlgorithm.cs" />
     <Compile Include="Algorithm\TriangulationAlgorithm.cs" />
+    <Compile Include="DrawingHelper.cs" />
     <Compile Include="FileOps\BezierFileOps.cs" />
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\Triangle.cs" />

@@ -29,31 +29,17 @@ namespace GKbezierSurface
         private TrackBar triangulationSlider;
         private ComboBox drawTypeComboBox;
         private PictureBox pictureBox;
-        private Bitmap offscreenBitmap;
 
+        private DrawingHelper drawingHelper;
 
         public MainForm()
         {
             InitializeComponent();
             InitializeComponentCustom();
-            InitializeBitmap();
             SetupFixedSize();
             SetupEventHandlers();
             MathHelper.PrecomputeBinomialCoefficients();
-            //Polygon polygon = new Polygon
-            //{
-            //    Stroke = Brushes.Black,          // Set the outline color
-            //    StrokeThickness = 1              // Set the outline thickness
-            //};
-            //polygon.Points.Add(new Point(110, 110));
-            //polygon.Points.Add(new Point(220, -110));
-            //polygon.Points.Add(new Point(-220, 220));
-            //polygon.Points.Add(new Point(220, -220));
-            //polygon.Points.Add(new Point(300, -400));
-
-            //BezierCanvas.Children.Add(polygon);
-
-            //FillPolygonAlgorithm.FillPolygon(polygon, BezierCanvas, Brushes.LightGray);
+            drawingHelper = new DrawingHelper(pictureBox);
 
             BezierFileOps bezierOps = new BezierFileOps();
             string filePath = Path.Combine(Application.StartupPath, "Resources", "points.txt");
@@ -69,9 +55,7 @@ namespace GKbezierSurface
                     Debug.WriteLine(point);
                 }
                 TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-                //UpdateDrawing();
-                pictureBox.Invalidate();
-
+                drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex);
             }
             else
             {
@@ -79,53 +63,29 @@ namespace GKbezierSurface
             }
 
         }
+
         private void OnTriangulationSliderValueChanged(object sender, EventArgs e)
         {
             var alpha = alphaSlider.Value;
             var beta = betaSlider.Value;
 
             TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-            //UpdateDrawing();
-            pictureBox.Invalidate();
+            drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex);
         }
-        private void UpdateDrawing()
-        {
-            //using (Graphics g = Graphics.FromImage(offscreenBitmap))
-            //{
-            //    g.Clear(Color.White); 
-
-            //    g.ScaleTransform(1, -1);
-            //    g.TranslateTransform(pictureBox.Width / 2, -pictureBox.Height / 2);
-
-            //    mesh.DrawMesh(g, drawTypeComboBox.SelectedIndex);
-            //}
-
-            //pictureBox.Invalidate();
-        }
-        private void pictureBox_Paint(object sender, PaintEventArgs e)
-        {
-            //if (offscreenBitmap != null)
-            //{
-            //    e.Graphics.Clear(Color.White);
-            //    e.Graphics.DrawImage(offscreenBitmap, 0, 10);
-            //}
-            e.Graphics.ScaleTransform(1, -1);
-            e.Graphics.TranslateTransform(pictureBox.Width / 2, -pictureBox.Height / 2);
-
-            mesh.DrawMesh(e.Graphics, drawTypeComboBox.SelectedIndex);
-        }
+        
         private void drawComboValueChanged(object sender, EventArgs e)
         {
-            pictureBox.Invalidate();
+            drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex);
         }
+
         private void SetupEventHandlers()
         {
-            pictureBox.Paint += pictureBox_Paint;
             triangulationSlider.ValueChanged += OnTriangulationSliderValueChanged;
             alphaSlider.ValueChanged += OnTriangulationSliderValueChanged;
             betaSlider.ValueChanged += OnTriangulationSliderValueChanged;
             drawTypeComboBox.SelectedValueChanged += drawComboValueChanged;
         }
+
         private void SetupFixedSize()
         {
             this.ClientSize = new System.Drawing.Size(1000, 800);
@@ -138,16 +98,6 @@ namespace GKbezierSurface
 
             this.StartPosition = FormStartPosition.CenterScreen;
         }
-        private void InitializeBitmap()
-        {
-            if (offscreenBitmap != null)
-            {
-                offscreenBitmap.Dispose();
-            }
-
-            offscreenBitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
-            pictureBox.Image = offscreenBitmap;
-        }
 
         private void InitializeComponentCustom()
         {
@@ -159,7 +109,8 @@ namespace GKbezierSurface
 
             pictureBox = new PictureBox
             {
-                Dock = DockStyle.Left,
+                Anchor = AnchorStyles.Left | AnchorStyles.Top,
+                Height = 800,
                 Width = 700,
                 BackColor = System.Drawing.Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
