@@ -111,6 +111,11 @@ namespace GKbezierPlain.Algorithm
             return Vector3.Cross(tangentU, tangentV);
         }
 
-
+        public static float Clamp(float value, float min, float max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
     }
 }

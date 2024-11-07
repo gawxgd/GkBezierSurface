@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlgorithmConfigurations\CalculateColorConfiguration.cs" />
     <Compile Include="Algorithm\CalculateColorAlgorithm.cs" />
     <Compile Include="Algorithm\FillPolygonAlgorithmWithBucketSort.cs" />
     <Compile Include="Algorithm\FillPolygonAlgorithm.cs" />

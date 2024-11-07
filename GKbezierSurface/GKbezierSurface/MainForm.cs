@@ -1,6 +1,8 @@
 ﻿using GKbezierPlain.Algorithm;
 using GKbezierPlain.FileOps;
 using GKbezierPlain.Geometry;
+using GKbezierSurface.Algorithm;
+using GKbezierSurface.AlgorithmConfigurations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,6 +31,12 @@ namespace GKbezierSurface
         private TrackBar triangulationSlider;
         private ComboBox drawTypeComboBox;
         private PictureBox pictureBox;
+        private TrackBar kdSlider;
+        private TrackBar ksSlider;
+        private TrackBar mSlider;
+        private Button lightColorButton;
+        
+        private Color selectedLightColor = Color.Yellow;
 
         private DrawingHelper drawingHelper;
 
@@ -63,13 +71,14 @@ namespace GKbezierSurface
             }
 
         }
-
         private void OnTriangulationSliderValueChanged(object sender, EventArgs e)
         {
             var alpha = alphaSlider.Value;
             var beta = betaSlider.Value;
 
             TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
+            var colorConfig = new CalculateColorConfiguration(kdSlider.Value,ksSlider.Value,mSlider.Value, selectedLightColor);
+            //CalculateColorAlgorithm.CalculateColor();
             drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex);
         }
         
@@ -84,11 +93,25 @@ namespace GKbezierSurface
             alphaSlider.ValueChanged += OnTriangulationSliderValueChanged;
             betaSlider.ValueChanged += OnTriangulationSliderValueChanged;
             drawTypeComboBox.SelectedValueChanged += drawComboValueChanged;
+            lightColorButton.Click += LightColorButton_Click;
+        }
+
+        private void LightColorButton_Click(object sender, EventArgs e)
+        {
+            using (ColorDialog colorDialog = new ColorDialog())
+            {
+                if (colorDialog.ShowDialog() == DialogResult.OK)
+                {
+                    selectedLightColor = colorDialog.Color;
+
+                    lightColorButton.BackColor = selectedLightColor;
+                }
+            }
         }
 
         private void SetupFixedSize()
         {
-            this.ClientSize = new System.Drawing.Size(1000, 800);
+            this.ClientSize = new System.Drawing.Size(1200, 800);
 
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
 
@@ -122,7 +145,7 @@ namespace GKbezierSurface
             FlowLayoutPanel controlPanel = new FlowLayoutPanel()
             {
                 Dock = DockStyle.Right,
-                Width = 250,
+                Width = 500,
                 FlowDirection = FlowDirection.TopDown,
                 AutoScroll = true,
                 Padding = new Padding(10)
@@ -130,7 +153,7 @@ namespace GKbezierSurface
             mainPanel.Controls.Add(controlPanel);
 
             // Rotation Angles GroupBox
-            GroupBox rotationGroup = new GroupBox() { Text = "Rotation Angles", Width = 230 };
+            GroupBox rotationGroup = new GroupBox() { Text = "Rotation Angles", Width = 400 };
             controlPanel.Controls.Add(rotationGroup);
 
             FlowLayoutPanel rotationPanel = new FlowLayoutPanel() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown };
@@ -145,7 +168,7 @@ namespace GKbezierSurface
             rotationPanel.Controls.Add(betaSlider);
 
             // Triangulation GroupBox
-            GroupBox triangulationGroup = new GroupBox() { Text = "Triangulation", Width = 230 };
+            GroupBox triangulationGroup = new GroupBox() { Text = "Triangulation", Width = 400 };
             controlPanel.Controls.Add(triangulationGroup);
 
             FlowLayoutPanel triangulationPanel = new FlowLayoutPanel() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown };
@@ -169,35 +192,34 @@ namespace GKbezierSurface
             drawingPanel.Controls.Add(drawTypeComboBox);
 
             // Lighting GroupBox
-            GroupBox lightingGroup = new GroupBox() { Text = "Lighting", Width = 230 };
+            GroupBox lightingGroup = new GroupBox() { Text = "Lighting", Width = 420 };
             controlPanel.Controls.Add(lightingGroup);
 
             FlowLayoutPanel lightingPanel = new FlowLayoutPanel() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown };
             lightingGroup.Controls.Add(lightingPanel);
 
-            lightingPanel.Controls.Add(new Label() { Text = "Diffuse Coefficient (kd)" });
-            TrackBar kdSlider = new TrackBar() { Minimum = 0, Maximum = 100, TickFrequency = 10 };
+            lightingPanel.Controls.Add(new Label() { Text = "Diffuse Coeff (kd)" });
+            kdSlider = new TrackBar() { Minimum = 0, Maximum = 100, TickFrequency = 10 };
             lightingPanel.Controls.Add(kdSlider);
 
-            lightingPanel.Controls.Add(new Label() { Text = "Specular Coefficient (ks)" });
-            TrackBar ksSlider = new TrackBar() { Minimum = 0, Maximum = 100, TickFrequency = 10 };
+            lightingPanel.Controls.Add(new Label() { Text = "Specular Coeff (ks)" });
+            ksSlider = new TrackBar() { Minimum = 0, Maximum = 100, TickFrequency = 10 };
             lightingPanel.Controls.Add(ksSlider);
 
-            lightingPanel.Controls.Add(new Label() { Text = "Reflection Exponent (m)" });
-            TrackBar mSlider = new TrackBar() { Minimum = 1, Maximum = 100, TickFrequency = 5 };
+            lightingPanel.Controls.Add(new Label() { Text = "Reflection Exp (m)" });
+            mSlider = new TrackBar() { Minimum = 1, Maximum = 100, TickFrequency = 5 };
             lightingPanel.Controls.Add(mSlider);
 
             // Colors GroupBox
-            GroupBox colorsGroup = new GroupBox() { Text = "Colors", Width = 230 };
+            GroupBox colorsGroup = new GroupBox() { Text = "Colors", Width = 400 };
             controlPanel.Controls.Add(colorsGroup);
 
             FlowLayoutPanel colorsPanel = new FlowLayoutPanel() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown };
             colorsGroup.Controls.Add(colorsPanel);
 
             colorsPanel.Controls.Add(new Label() { Text = "Light Color (IL)" });
-            ComboBox lightColorComboBox = new ComboBox();
-            lightColorComboBox.Items.AddRange(new string[] { "White", "Red", "Green", "Blue", "Yellow" });
-            colorsPanel.Controls.Add(lightColorComboBox);
+            lightColorButton = new Button() { Text = "Select Light Color" };
+            colorsPanel.Controls.Add(lightColorButton);
 
             colorsPanel.Controls.Add(new Label() { Text = "Object Color (IO)" });
             RadioButton solidColorRadio = new RadioButton() { Text = "Solid Color" };
@@ -209,7 +231,7 @@ namespace GKbezierSurface
             colorsPanel.Controls.Add(loadTextureButton);
 
             // Rendering Options GroupBox
-            GroupBox renderOptionsGroup = new GroupBox() { Text = "Rendering Options", Width = 230 };
+            GroupBox renderOptionsGroup = new GroupBox() { Text = "Rendering Options", Width = 400 };
             controlPanel.Controls.Add(renderOptionsGroup);
 
             FlowLayoutPanel renderOptionsPanel = new FlowLayoutPanel() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown };
