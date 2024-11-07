@@ -69,7 +69,9 @@ namespace GKbezierSurface
                     Debug.WriteLine(point);
                 }
                 TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-                UpdateDrawing();
+                //UpdateDrawing();
+                pictureBox.Invalidate();
+
             }
             else
             {
@@ -83,33 +85,38 @@ namespace GKbezierSurface
             var beta = betaSlider.Value;
 
             TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-            UpdateDrawing();
+            //UpdateDrawing();
+            pictureBox.Invalidate();
         }
         private void UpdateDrawing()
         {
-            using (Graphics g = Graphics.FromImage(offscreenBitmap))
-            {
-                g.Clear(Color.White); 
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            //using (Graphics g = Graphics.FromImage(offscreenBitmap))
+            //{
+            //    g.Clear(Color.White); 
 
-                g.ScaleTransform(1, -1);
-                g.TranslateTransform(offscreenBitmap.Width / 2, -offscreenBitmap.Height / 2);
+            //    g.ScaleTransform(1, -1);
+            //    g.TranslateTransform(pictureBox.Width / 2, -pictureBox.Height / 2);
 
-                mesh.DrawMesh(g, drawTypeComboBox.SelectedIndex);
-            }
+            //    mesh.DrawMesh(g, drawTypeComboBox.SelectedIndex);
+            //}
 
-            pictureBox.Invalidate();
+            //pictureBox.Invalidate();
         }
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {
-            if (offscreenBitmap != null)
-            {
-                e.Graphics.DrawImage(offscreenBitmap, 0, 0);
-            }
+            //if (offscreenBitmap != null)
+            //{
+            //    e.Graphics.Clear(Color.White);
+            //    e.Graphics.DrawImage(offscreenBitmap, 0, 10);
+            //}
+            e.Graphics.ScaleTransform(1, -1);
+            e.Graphics.TranslateTransform(pictureBox.Width / 2, -pictureBox.Height / 2);
+
+            mesh.DrawMesh(e.Graphics, drawTypeComboBox.SelectedIndex);
         }
         private void drawComboValueChanged(object sender, EventArgs e)
         {
-            UpdateDrawing();
+            pictureBox.Invalidate();
         }
         private void SetupEventHandlers()
         {
