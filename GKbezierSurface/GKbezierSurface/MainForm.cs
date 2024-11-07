@@ -35,8 +35,11 @@ namespace GKbezierSurface
         private TrackBar ksSlider;
         private TrackBar mSlider;
         private Button lightColorButton;
+        private Button objectColorButton;
+        private TrackBar lightPositionSlider;
         
         private Color selectedLightColor = Color.Yellow;
+        private Color selectedObjectColor = Color.Yellow;
 
         private DrawingHelper drawingHelper;
 
@@ -58,12 +61,11 @@ namespace GKbezierSurface
                 var beta = betaSlider.Value;
 
                 controlPoints = bezierOps.ControlPoints;
-                foreach(var point in controlPoints)
-                {
-                    Debug.WriteLine(point);
-                }
+                
                 TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-                drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex);
+                var colorConfig = new CalculateColorConfiguration(kdSlider.Value, ksSlider.Value, mSlider.Value, selectedLightColor, selectedObjectColor, lightPositionSlider.Value);
+
+                drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex, colorConfig);
             }
             else
             {
@@ -77,14 +79,14 @@ namespace GKbezierSurface
             var beta = betaSlider.Value;
 
             TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-            var colorConfig = new CalculateColorConfiguration(kdSlider.Value,ksSlider.Value,mSlider.Value, selectedLightColor);
-            //CalculateColorAlgorithm.CalculateColor();
-            drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex);
+            var colorConfig = new CalculateColorConfiguration(kdSlider.Value,ksSlider.Value,mSlider.Value, selectedLightColor,selectedObjectColor, lightPositionSlider.Value);
+            drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex,colorConfig);
         }
         
         private void drawComboValueChanged(object sender, EventArgs e)
         {
-            drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex);
+            var colorConfig = new CalculateColorConfiguration(kdSlider.Value, ksSlider.Value, mSlider.Value, selectedLightColor, selectedObjectColor, lightPositionSlider.Value);
+            drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex,colorConfig);
         }
 
         private void SetupEventHandlers()
@@ -94,6 +96,26 @@ namespace GKbezierSurface
             betaSlider.ValueChanged += OnTriangulationSliderValueChanged;
             drawTypeComboBox.SelectedValueChanged += drawComboValueChanged;
             lightColorButton.Click += LightColorButton_Click;
+            objectColorButton.Click += ObjectColorButton_Click;
+
+            ksSlider.ValueChanged += drawComboValueChanged;
+            kdSlider.ValueChanged += drawComboValueChanged;
+            mSlider.ValueChanged += drawComboValueChanged;
+            lightPositionSlider.ValueChanged += drawComboValueChanged;
+        }
+
+        private void ObjectColorButton_Click(object sender, EventArgs e)
+        {
+            using (ColorDialog colorDialog = new ColorDialog())
+            {
+                if (colorDialog.ShowDialog() == DialogResult.OK)
+                {
+                    selectedObjectColor = colorDialog.Color;
+
+                    objectColorButton.BackColor = selectedObjectColor;
+                    drawComboValueChanged(sender, e);
+                }
+            }
         }
 
         private void LightColorButton_Click(object sender, EventArgs e)
@@ -105,6 +127,7 @@ namespace GKbezierSurface
                     selectedLightColor = colorDialog.Color;
 
                     lightColorButton.BackColor = selectedLightColor;
+                    drawComboValueChanged(sender, e);
                 }
             }
         }
@@ -218,10 +241,13 @@ namespace GKbezierSurface
             colorsGroup.Controls.Add(colorsPanel);
 
             colorsPanel.Controls.Add(new Label() { Text = "Light Color (IL)" });
-            lightColorButton = new Button() { Text = "Select Light Color" };
+            lightColorButton = new Button() { Text = "Light" };
             colorsPanel.Controls.Add(lightColorButton);
 
             colorsPanel.Controls.Add(new Label() { Text = "Object Color (IO)" });
+            objectColorButton = new Button() { Text = "Object" };
+            colorsPanel.Controls.Add(objectColorButton);
+
             RadioButton solidColorRadio = new RadioButton() { Text = "Solid Color" };
             RadioButton textureRadio = new RadioButton() { Text = "Texture" };
             colorsPanel.Controls.Add(solidColorRadio);
@@ -250,7 +276,7 @@ namespace GKbezierSurface
             lightAnimationGroup.Controls.Add(lightAnimationPanel);
 
             lightAnimationPanel.Controls.Add(new Label() { Text = "Light Position (Z)" });
-            TrackBar lightPositionSlider = new TrackBar() { Minimum = -10, Maximum = 10, TickFrequency = 1 };
+            lightPositionSlider = new TrackBar() { Minimum = -10, Maximum = 10, TickFrequency = 1 };
             lightAnimationPanel.Controls.Add(lightPositionSlider);
 
             Button startStopAnimationButton = new Button() { Text = "Start/Stop Animation" };

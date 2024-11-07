@@ -1,4 +1,5 @@
 ﻿using GKbezierPlain.Geometry;
+using GKbezierSurface.AlgorithmConfigurations;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -58,7 +59,7 @@ namespace GKbezierSurface
         }
         
 
-        public void Draw(Mesh mesh, int drawType)
+        public void Draw(Mesh mesh, int drawType, CalculateColorConfiguration colorConfiguration)
         {
             using (var graphics = Graphics.FromImage(bufferBitmap))
             {
@@ -67,7 +68,7 @@ namespace GKbezierSurface
                 
                 graphics.Clear(Color.White);
 
-                mesh.DrawMesh(graphics, drawType);
+                mesh.DrawMesh(graphics, drawType, colorConfiguration);
             }
 
             DrawBuffer();

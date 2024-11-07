@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System;
+using GKbezierSurface.AlgorithmConfigurations;
+using GKbezierSurface.Algorithm;
 
 namespace GKbezierPlain.Algorithm
 {
@@ -10,14 +12,14 @@ namespace GKbezierPlain.Algorithm
     {
         private static (int minY, int maxY) GetYBounds(Vertex[] vertices)
         {
-            var minY = vertices.Min(v => (int)v.Position.Y);
-            var maxY = vertices.Max(v => (int)v.Position.Y);
+            var minY = vertices.Min(v => (int)v.PositionRotated.Y);
+            var maxY = vertices.Max(v => (int)v.PositionRotated.Y);
             return (minY, maxY);
         }
         private static float CalculateDxDy(Vertex start, Vertex end)
         {
-            return (float)(end.Position.X - start.Position.X) /
-                        (end.Position.Y - start.Position.Y);
+            return (float)(end.PositionRotated.X - start.PositionRotated.X) /
+                        (end.PositionRotated.Y - start.PositionRotated.Y);
         }
         private static List<EdgeBucket>[] InitializeEdgeTable(int minY, int maxY, Vertex[] vertices)
         {
@@ -33,24 +35,24 @@ namespace GKbezierPlain.Algorithm
                 var start = vertices[i];
                 var end = vertices[(i + 1) % vertices.Length];
 
-                if (start.Position.Y > end.Position.Y)
+                if (start.PositionRotated.Y > end.PositionRotated.Y)
                 {
                     (end, start) = (start, end);
                 }
 
-                if (start.Position.Y != end.Position.Y)
+                if (start.PositionRotated.Y != end.PositionRotated.Y)
                 {
                    var dxdy = CalculateDxDy(start, end);
 
-                    edgeTable[(int)start.Position.Y - minY]
-                        .Add(new EdgeBucket((int)end.Position.Y,start.Position.X, dxdy));
+                    edgeTable[(int)start.PositionRotated.Y - minY]
+                        .Add(new EdgeBucket((int)end.PositionRotated.Y,start.PositionRotated.X, dxdy));
                 }
             }
 
             return edgeTable;
         }
 
-        public static void FillPolygon(Graphics graphics, Brush color, Vertex[] vertices)
+        public static void FillPolygon(Graphics graphics, CalculateColorConfiguration colorConfiguration, Vertex[] vertices, Triangle triangle)
         {
             (var minY, var maxY) = GetYBounds(vertices);
 
@@ -71,7 +73,7 @@ namespace GKbezierPlain.Algorithm
                     var xStart = (int)Math.Ceiling(activeEdges[i].currentX);
                     var xEnd = (int)Math.Floor(activeEdges[i + 1].currentX);
 
-                    DrawScanLine(graphics, y, xStart, xEnd, color);
+                    DrawScanLine(graphics, y, xStart, xEnd, colorConfiguration,triangle);
                 }
 
                 foreach (var edge in activeEdges)
@@ -80,11 +82,13 @@ namespace GKbezierPlain.Algorithm
                 }
             }
         }
-        private static void DrawScanLine(Graphics g, int y, int startX, int endX, Brush color)
+        private static void DrawScanLine(Graphics g, int y, int startX, int endX, CalculateColorConfiguration colorConfiguration, Triangle triangle)
         {
             for (int x = startX; x <= endX; x++)
             {
-                g.FillRectangle(color, x, y, 1, 1);
+                var color = CalculateColorAlgorithm.GetLambertColor(new PointF(x, y), colorConfiguration, triangle);
+                Brush cBrush = new SolidBrush(color);
+                g.FillRectangle(cBrush, x, y, 1, 1);
             }
         }
         private class EdgeBucket

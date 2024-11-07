@@ -108,7 +108,8 @@ namespace GKbezierPlain.Algorithm
         }
         public static Vector3 CalculateNormalVector(Vector3 tangentU, Vector3 tangentV)
         {
-            return Vector3.Cross(tangentU, tangentV);
+            var a = Vector3.Normalize(Vector3.Cross(tangentU, tangentV));
+            return a;
         }
 
         public static float Clamp(float value, float min, float max)

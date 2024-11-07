@@ -18,10 +18,10 @@ namespace GKbezierPlain.Algorithm
 
             // Apply rotation matrices to Position, TangentU, TangentV, and Normal
             // change to rotated
-            vertex.Position = Vector3.Transform(vertex.Position, rotation);
-            vertex.TangentU = Vector3.Transform(vertex.TangentU, rotationZ);
-            vertex.TangentV = Vector3.Transform(vertex.TangentV, rotation);
-            vertex.Normal = Vector3.Transform(vertex.Normal, rotation);
+            vertex.PositionRotated = Vector3.Transform(vertex.Position, rotation);
+            vertex.TangentURotated = Vector3.Transform(vertex.TangentU, rotationZ);
+            vertex.TangentVRotated = Vector3.Transform(vertex.TangentV, rotation);
+            vertex.NormalRotated = Vector3.Transform(vertex.Normal, rotation);
         }
     }
 }

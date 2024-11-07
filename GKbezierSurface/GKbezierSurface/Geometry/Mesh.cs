@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using GKbezierSurface.AlgorithmConfigurations;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -20,13 +21,13 @@ namespace GKbezierPlain.Geometry
             Triangles.Add(triangle);
         }
 
-        public void DrawMesh(Graphics g, int drawType)
+        public void DrawMesh(Graphics g, int drawType, CalculateColorConfiguration colorConfiguration)
         {
             //g.Clear(Color.White);
 
             foreach (var triangle in Triangles)
             {
-                triangle.DrawTriangle(g, drawType, Bcolor);
+                triangle.DrawTriangle(g, drawType, colorConfiguration);
             }
         }
 
