@@ -25,7 +25,16 @@ namespace GKbezierSurface.Algorithm
             
             Vector3 point3D = new Vector3(point.X, point.Y, interpolatedZ);
 
-            Vector3 L = Vector3.Normalize(point3D - new Vector3(0, 0, colorConfiguration.Z));
+            Vector3 L = point3D - new Vector3(0, 0, colorConfiguration.Z);
+            if (L.LengthSquared() < 1e-6f)
+            {
+                L = new Vector3(0, 0, colorConfiguration.Z);
+            }
+            else
+            {
+                L = Vector3.Normalize(L);
+            }
+
             Vector3 IO = colorConfiguration.ObjectColor;
             Vector3 IL = colorConfiguration.LightColor;
             float kd = colorConfiguration.Kd;

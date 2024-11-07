@@ -37,9 +37,16 @@ namespace GKbezierSurface
         private Button lightColorButton;
         private Button objectColorButton;
         private TrackBar lightPositionSlider;
-        
+        private Button startStopAnimationButton;
+
         private Color selectedLightColor = Color.Yellow;
         private Color selectedObjectColor = Color.Yellow;
+
+        private Timer lightAnimationTimer;
+        private bool isAnimating = false;
+        private int lightPositionMin = -10;
+        private int lightPositionMax = 10;
+        private int lightPositionStep = 1;
 
         private DrawingHelper drawingHelper;
 
@@ -47,6 +54,7 @@ namespace GKbezierSurface
         {
             InitializeComponent();
             InitializeComponentCustom();
+            InitalizeTimer();
             SetupFixedSize();
             SetupEventHandlers();
             MathHelper.PrecomputeBinomialCoefficients();
@@ -89,6 +97,37 @@ namespace GKbezierSurface
             drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex,colorConfig);
         }
 
+        private void StartStopAnimationButton_Click(object sender, EventArgs e)
+        {
+            if (isAnimating)
+            {
+                lightAnimationTimer.Stop();
+                isAnimating = false;
+                var butt = sender as Button;
+                butt.Text = "Start";
+            }
+            else
+            {
+                lightAnimationTimer.Start();
+                isAnimating = true;
+                var butt = sender as Button;
+                butt.Text = "Stop";
+            }
+        }
+        private void LightAnimationTimer_Tick(object sender, EventArgs e)
+        {
+            int currentPosition = lightPositionSlider.Value;
+
+            if (currentPosition >= lightPositionMax || currentPosition <= lightPositionMin)
+            {
+                lightPositionStep = -lightPositionStep; 
+            }
+
+            lightPositionSlider.Value += lightPositionStep;
+
+            drawComboValueChanged(sender, e);
+        }
+
         private void SetupEventHandlers()
         {
             triangulationSlider.ValueChanged += OnTriangulationSliderValueChanged;
@@ -102,6 +141,8 @@ namespace GKbezierSurface
             kdSlider.ValueChanged += drawComboValueChanged;
             mSlider.ValueChanged += drawComboValueChanged;
             lightPositionSlider.ValueChanged += drawComboValueChanged;
+
+            startStopAnimationButton.Click += StartStopAnimationButton_Click;
         }
 
         private void ObjectColorButton_Click(object sender, EventArgs e)
@@ -130,6 +171,12 @@ namespace GKbezierSurface
                     drawComboValueChanged(sender, e);
                 }
             }
+        }
+        private void InitalizeTimer()
+        {
+            lightAnimationTimer = new Timer();
+            lightAnimationTimer.Interval = 50; 
+            lightAnimationTimer.Tick += LightAnimationTimer_Tick;
         }
 
         private void SetupFixedSize()
@@ -279,7 +326,7 @@ namespace GKbezierSurface
             lightPositionSlider = new TrackBar() { Minimum = -10, Maximum = 10, TickFrequency = 1 };
             lightAnimationPanel.Controls.Add(lightPositionSlider);
 
-            Button startStopAnimationButton = new Button() { Text = "Start/Stop Animation" };
+            startStopAnimationButton = new Button() { Text = "Start/Stop Animation" };
             lightAnimationPanel.Controls.Add(startStopAnimationButton);
 
             // Main Form setup
