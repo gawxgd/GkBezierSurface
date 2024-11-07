@@ -25,14 +25,21 @@ namespace GKbezierSurface.AlgorithmConfigurations
 
         public int Z { get; set; }
 
-        public CalculateColorConfiguration(float kd, float ks, int m, Color lightColor, Color objectColor, int z)
+        public TextureHelper TextureHelper { get; set; }
+
+        public bool IsTextureMode { get; set; }
+
+        public CalculateColorConfiguration(float kd, float ks, int m, Color lightColor, Color objectColor, int z, TextureHelper textureHelper, bool isTextureMode)
         {
             Kd = kd;
             Ks = ks;
             M = m;
-            LightColor = Vector3.Normalize(new Vector3(lightColor.R, lightColor.G, lightColor.B));
-            ObjectColor = Vector3.Normalize(new Vector3(objectColor.R, objectColor.G, objectColor.B));
+            LightColor = new Vector3(lightColor.R, lightColor.G, lightColor.B) / 255;
+            ObjectColor = new Vector3(objectColor.R, objectColor.G, objectColor.B) / 255;
             Z = z;
+            TextureHelper = textureHelper;
+          
+            IsTextureMode = isTextureMode;
         }
     }
 }

@@ -38,16 +38,19 @@ namespace GKbezierSurface
         private Button objectColorButton;
         private TrackBar lightPositionSlider;
         private Button startStopAnimationButton;
+        private Button loadTextureButton;
+        private RadioButton textureRadio;
 
-        private Color selectedLightColor = Color.Yellow;
-        private Color selectedObjectColor = Color.Yellow;
+        private Color selectedLightColor = Color.White;
+        private Color selectedObjectColor = Color.White;
 
         private Timer lightAnimationTimer;
         private bool isAnimating = false;
-        private int lightPositionMin = -10;
-        private int lightPositionMax = 10;
+        private int lightPositionMin = 0;
+        private int lightPositionMax = 63;
         private int lightPositionStep = 1;
 
+        private TextureHelper textureHelper;
         private DrawingHelper drawingHelper;
 
         public MainForm()
@@ -71,7 +74,7 @@ namespace GKbezierSurface
                 controlPoints = bezierOps.ControlPoints;
                 
                 TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-                var colorConfig = new CalculateColorConfiguration(kdSlider.Value, ksSlider.Value, mSlider.Value, selectedLightColor, selectedObjectColor, lightPositionSlider.Value);
+                var colorConfig = SetColorConfiguration();
 
                 drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex, colorConfig);
             }
@@ -81,19 +84,34 @@ namespace GKbezierSurface
             }
 
         }
+
+        private CalculateColorConfiguration SetColorConfiguration()
+        {
+            return new CalculateColorConfiguration(kdSlider.Value,
+                ksSlider.Value,
+                mSlider.Value,
+                selectedLightColor,
+                selectedObjectColor,
+                lightPositionSlider.Value,
+                textureHelper,
+                textureRadio.Checked);
+        }
+
         private void OnTriangulationSliderValueChanged(object sender, EventArgs e)
         {
             var alpha = alphaSlider.Value;
             var beta = betaSlider.Value;
 
             TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
-            var colorConfig = new CalculateColorConfiguration(kdSlider.Value,ksSlider.Value,mSlider.Value, selectedLightColor,selectedObjectColor, lightPositionSlider.Value);
+            var colorConfig = SetColorConfiguration();
+
             drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex,colorConfig);
         }
         
         private void drawComboValueChanged(object sender, EventArgs e)
         {
-            var colorConfig = new CalculateColorConfiguration(kdSlider.Value, ksSlider.Value, mSlider.Value, selectedLightColor, selectedObjectColor, lightPositionSlider.Value);
+            var colorConfig = SetColorConfiguration();
+
             drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex,colorConfig);
         }
 
@@ -118,9 +136,16 @@ namespace GKbezierSurface
         {
             int currentPosition = lightPositionSlider.Value;
 
-            if (currentPosition >= lightPositionMax || currentPosition <= lightPositionMin)
+            if (currentPosition + lightPositionStep <= lightPositionMin)
             {
-                lightPositionStep = -lightPositionStep; 
+                currentPosition = lightPositionMin;
+                lightPositionStep = -lightPositionStep;
+                return;
+            }else if(currentPosition + lightPositionStep >= lightPositionMax)
+            {
+                currentPosition = lightPositionMax;
+                lightPositionStep = -lightPositionStep;
+                return;
             }
 
             lightPositionSlider.Value += lightPositionStep;
@@ -143,6 +168,33 @@ namespace GKbezierSurface
             lightPositionSlider.ValueChanged += drawComboValueChanged;
 
             startStopAnimationButton.Click += StartStopAnimationButton_Click;
+            loadTextureButton.Click += LoadTextureButton_Click;
+            textureRadio.CheckedChanged += TextureRadio_CheckedChange;
+        }
+
+        private void LoadTextureButton_Click(object sender, EventArgs e)
+        {
+            textureHelper = new TextureHelper();
+            textureHelper.LoadTexture();
+            textureRadio.Checked = true;
+        }
+
+        private void TextureRadio_CheckedChange(object sender, EventArgs e)
+        {
+            if(textureHelper == null)
+            {
+                //var radio = sender as RadioButton;
+                //if (radio.Checked == true)
+                //{
+                //    radio.Checked = false;
+                //    MessageBox.Show("Please load a texture first.");
+                //}
+                //return;
+            }
+            else
+            {
+                drawComboValueChanged(sender, e);
+            }
         }
 
         private void ObjectColorButton_Click(object sender, EventArgs e)
@@ -296,11 +348,11 @@ namespace GKbezierSurface
             colorsPanel.Controls.Add(objectColorButton);
 
             RadioButton solidColorRadio = new RadioButton() { Text = "Solid Color" };
-            RadioButton textureRadio = new RadioButton() { Text = "Texture" };
+            textureRadio = new RadioButton() { Text = "Texture" };
             colorsPanel.Controls.Add(solidColorRadio);
             colorsPanel.Controls.Add(textureRadio);
 
-            Button loadTextureButton = new Button() { Text = "Load Texture" };
+            loadTextureButton = new Button() { Text = "Load Texture" };
             colorsPanel.Controls.Add(loadTextureButton);
 
             // Rendering Options GroupBox
@@ -323,7 +375,7 @@ namespace GKbezierSurface
             lightAnimationGroup.Controls.Add(lightAnimationPanel);
 
             lightAnimationPanel.Controls.Add(new Label() { Text = "Light Position (Z)" });
-            lightPositionSlider = new TrackBar() { Minimum = -10, Maximum = 10, TickFrequency = 1 };
+            lightPositionSlider = new TrackBar() { Minimum = 0, Maximum = 63, TickFrequency = 1 };
             lightAnimationPanel.Controls.Add(lightPositionSlider);
 
             startStopAnimationButton = new Button() { Text = "Start/Stop Animation" };

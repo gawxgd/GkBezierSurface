@@ -44,7 +44,19 @@ namespace GKbezierSurface.Algorithm
                 L = Vector3.Normalize(L);
             }
 
-            Vector3 IO = colorConfiguration.ObjectColor;
+            Vector3 IO;
+
+            if (colorConfiguration.IsTextureMode == false)
+            {
+                IO = colorConfiguration.ObjectColor;
+            }
+            else
+            {
+                Vector2 uv = InterpolateUV(triangle, barycentricCoords);
+                Color textureColor = colorConfiguration.TextureHelper.GetColorAtUV(uv.X, uv.Y);
+                IO = new Vector3(textureColor.R, textureColor.G, textureColor.B) / 255;
+            }
+
             Vector3 IL = colorConfiguration.LightColor;
             float kd = colorConfiguration.Kd;
             float ks = colorConfiguration.Ks;
@@ -74,6 +86,20 @@ namespace GKbezierSurface.Algorithm
             float gamma = 1 - alpha - beta;   // Weight for Vertex3
 
             return new Vector3(alpha, beta, gamma);
+        }
+
+        private static Vector2 InterpolateUV(Triangle triangle, Vector3 barycentricCoords)
+        {
+            // Interpolate U and V using barycentric coordinates
+            float u = (float)(barycentricCoords.X * triangle.Vertex1.OriginU
+                            + barycentricCoords.Y * triangle.Vertex2.OriginU
+                            + barycentricCoords.Z * triangle.Vertex3.OriginU);
+
+            float v = (float)(barycentricCoords.X * triangle.Vertex1.OriginV
+                            + barycentricCoords.Y * triangle.Vertex2.OriginV
+                            + barycentricCoords.Z * triangle.Vertex3.OriginV);
+
+            return new Vector2(u, v);
         }
 
         private static Vector3 InterpolateNormal(Triangle triangle, Vector3 barycentricCoords)

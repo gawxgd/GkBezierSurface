@@ -42,6 +42,8 @@ namespace GKbezierPlain.Geometry
             TangentV = tangentV;
             Normal = normal;
 
+            OriginU = u;
+            OriginV = v;
             // Initially, rotated values are the same as original
             PositionRotated = Position;
             TangentURotated = TangentU;
