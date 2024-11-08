@@ -28,8 +28,14 @@ namespace GKbezierSurface.AlgorithmConfigurations
         public TextureHelper TextureHelper { get; set; }
 
         public bool IsTextureMode { get; set; }
+        public bool IsNormalMapMode { get; set; }
+        public NormalMapHelper NormalMapHelper { get; set; }
 
-        public CalculateColorConfiguration(float kd, float ks, int m, Color lightColor, Color objectColor, int z, TextureHelper textureHelper, bool isTextureMode)
+        public CalculateColorConfiguration(float kd, float ks, int m, 
+            Color lightColor, Color objectColor, 
+            int z, TextureHelper textureHelper, 
+            bool isTextureMode, NormalMapHelper normalMapHelper, 
+            bool isNormalMapMode)
         {
             Kd = kd;
             Ks = ks;
@@ -37,9 +43,12 @@ namespace GKbezierSurface.AlgorithmConfigurations
             LightColor = new Vector3(lightColor.R, lightColor.G, lightColor.B) / 255;
             ObjectColor = new Vector3(objectColor.R, objectColor.G, objectColor.B) / 255;
             Z = z;
+
             TextureHelper = textureHelper;
-          
             IsTextureMode = isTextureMode;
+            
+            IsNormalMapMode = isNormalMapMode;
+            NormalMapHelper = normalMapHelper;
         }
     }
 }

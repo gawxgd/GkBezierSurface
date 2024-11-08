@@ -7,8 +7,21 @@ using System.Numerics;
 
 namespace GKbezierSurface.Algorithm
 {
+   using static BarycentricAndInterpolationAlgorithm;
+
     public static class CalculateColorAlgorithm
     {
+        private static Matrix4x4 GetTransformationMatrix(Vector3 tangentU, Vector3 tangentV, Vector3 normal)
+        {
+            Matrix4x4 rotationMatrix = new Matrix4x4(
+                tangentU.X, tangentV.X, normal.X, 0,
+                tangentU.Y, tangentV.Y, normal.Y, 0,
+                tangentU.Z, tangentV.Z, normal.Z, 0,
+                0, 0, 0, 0
+            );
+
+            return rotationMatrix;
+        }
         private static Vector3 lightAnimation(int z)
         {
             float radius = 100.0f;
@@ -23,11 +36,27 @@ namespace GKbezierSurface.Algorithm
 
         public static Color GetLambertColor(PointF point, CalculateColorConfiguration colorConfiguration, Triangle triangle)
         {
-            var a = triangle.Vertex1.NormalRotated;
             // calculate N and interpolated Z
             Vector3 barycentricCoords = CalculateBarycentricCoordinates(point, triangle);
+            Vector3 Nsurface = InterpolateNormal(triangle, barycentricCoords); //experimental
 
-            Vector3 N = InterpolateNormal(triangle, barycentricCoords);
+            Vector3 N;
+            if (colorConfiguration.IsNormalMapMode)
+            {
+                Vector2 uv = InterpolateUV(triangle, barycentricCoords);
+                Vector3 Ntexture = colorConfiguration.NormalMapHelper.GetNormalAtUV(uv.X, uv.Y);
+
+                //Matrix4x4 rotationMatrix = Matrix4x4.CreateFromAxisAngle(Nsurface, (float)Math.PI / 2);
+                Matrix4x4 customRotationMatrix = GetTransformationMatrix(InterpolateTangentU(triangle,barycentricCoords), 
+                   InterpolateTangentV(triangle,barycentricCoords), Nsurface);
+                //N = Vector3.Transform(Ntexture, rotationMatrix); // Adjust N with rotation based on surface normal
+                N = Vector3.Transform(Ntexture, customRotationMatrix);
+            }
+            else
+            {
+                N = Nsurface;
+            }
+
             float interpolatedZ = InterpolateZ(triangle, barycentricCoords);
 
             Vector3 point3D = new Vector3(point.X, point.Y, interpolatedZ);
@@ -65,60 +94,6 @@ namespace GKbezierSurface.Algorithm
             return CalculateColor(N, L, IO, IL, kd, ks, m);
         }
 
-        private static Vector3 CalculateBarycentricCoordinates(PointF point, Triangle triangle)
-        {
-            Vector3 p = new Vector3(point.X, point.Y, 0);
-
-            Vector3 a = new Vector3(triangle.Vertex1.PositionRotated.X, triangle.Vertex1.PositionRotated.Y, 0);
-            Vector3 b = new Vector3(triangle.Vertex2.PositionRotated.X, triangle.Vertex2.PositionRotated.Y, 0);
-            Vector3 c = new Vector3(triangle.Vertex3.PositionRotated.X, triangle.Vertex3.PositionRotated.Y, 0);
-
-            // Calculate the area of the whole triangle using the cross product
-            float areaABC = Vector3.Cross(b - a, c - a).Length() / 2;
-
-            // Calculate areas of sub-triangles to get barycentric coordinates
-            float areaPBC = Vector3.Cross(b - p, c - p).Length() / 2;
-            float areaPCA = Vector3.Cross(c - p, a - p).Length() / 2;
-
-            // Barycentric coordinates as ratios of sub-triangle areas to the main triangle area
-            float alpha = areaPBC / areaABC;  // Weight for Vertex1
-            float beta = areaPCA / areaABC;   // Weight for Vertex2
-            float gamma = 1 - alpha - beta;   // Weight for Vertex3
-
-            return new Vector3(alpha, beta, gamma);
-        }
-
-        private static Vector2 InterpolateUV(Triangle triangle, Vector3 barycentricCoords)
-        {
-            // Interpolate U and V using barycentric coordinates
-            float u = (float)(barycentricCoords.X * triangle.Vertex1.OriginU
-                            + barycentricCoords.Y * triangle.Vertex2.OriginU
-                            + barycentricCoords.Z * triangle.Vertex3.OriginU);
-
-            float v = (float)(barycentricCoords.X * triangle.Vertex1.OriginV
-                            + barycentricCoords.Y * triangle.Vertex2.OriginV
-                            + barycentricCoords.Z * triangle.Vertex3.OriginV);
-
-            return new Vector2(u, v);
-        }
-
-        private static Vector3 InterpolateNormal(Triangle triangle, Vector3 barycentricCoords)
-        {
-            // Interpolating the normal based on triangle vertex normals
-            Vector3 N = barycentricCoords.X * triangle.Vertex1.NormalRotated
-                      + barycentricCoords.Y * triangle.Vertex2.NormalRotated
-                      + barycentricCoords.Z * triangle.Vertex3.NormalRotated;
-            return Vector3.Normalize(N);
-        }
-
-        private static float InterpolateZ(Triangle triangle, Vector3 barycentricCoords)
-        {
-            // Interpolating the Z-coordinate for the point inside the triangle
-            float interpolatedZ = barycentricCoords.X * triangle.Vertex1.PositionRotated.Z
-                                + barycentricCoords.Y * triangle.Vertex2.PositionRotated.Z
-                                + barycentricCoords.Z * triangle.Vertex3.PositionRotated.Z;
-            return interpolatedZ;
-        }
         private static Color CalculateColor(Vector3 N, Vector3 L, Vector3 IO, Vector3 IL, float kd, float ks, int m)
         {
             // Normalize vectors

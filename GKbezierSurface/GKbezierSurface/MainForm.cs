@@ -40,6 +40,8 @@ namespace GKbezierSurface
         private Button startStopAnimationButton;
         private Button loadTextureButton;
         private RadioButton textureRadio;
+        private Button loadNormalMapButton;
+        private CheckBox normalMapEnableCheckBox;
 
         private Color selectedLightColor = Color.White;
         private Color selectedObjectColor = Color.White;
@@ -52,6 +54,7 @@ namespace GKbezierSurface
 
         private TextureHelper textureHelper;
         private DrawingHelper drawingHelper;
+        private NormalMapHelper normalMapHelper;
 
         public MainForm()
         {
@@ -94,7 +97,10 @@ namespace GKbezierSurface
                 selectedObjectColor,
                 lightPositionSlider.Value,
                 textureHelper,
-                textureRadio.Checked);
+                textureRadio.Checked,
+                normalMapHelper,
+                normalMapEnableCheckBox.Checked
+                );
         }
 
         private void OnTriangulationSliderValueChanged(object sender, EventArgs e)
@@ -170,6 +176,35 @@ namespace GKbezierSurface
             startStopAnimationButton.Click += StartStopAnimationButton_Click;
             loadTextureButton.Click += LoadTextureButton_Click;
             textureRadio.CheckedChanged += TextureRadio_CheckedChange;
+            
+            loadNormalMapButton.Click += NormalMapButton_Click;
+            normalMapEnableCheckBox.CheckedChanged += NormalMapEnableCheckBox_CheckedChange;
+        }
+
+        private void NormalMapEnableCheckBox_CheckedChange(object sender, EventArgs e)
+        {
+            if (normalMapHelper == null)
+            {
+                var checkBox = sender as CheckBox;
+                if (checkBox.Checked == true)
+                {
+                    checkBox.Checked = false;
+                    MessageBox.Show("Please load a normalMap first.");
+                }
+                return;
+            }
+            else
+            {
+                drawComboValueChanged(sender, e);
+            }
+        }
+
+        private void NormalMapButton_Click(object sender, EventArgs e)
+        {
+            normalMapHelper = new NormalMapHelper();
+            normalMapHelper.LoadNormalMap();
+            normalMapEnableCheckBox.Checked = true;
+            drawComboValueChanged(sender, e);
         }
 
         private void LoadTextureButton_Click(object sender, EventArgs e)
@@ -177,19 +212,20 @@ namespace GKbezierSurface
             textureHelper = new TextureHelper();
             textureHelper.LoadTexture();
             textureRadio.Checked = true;
+            drawComboValueChanged(sender, e);
         }
 
         private void TextureRadio_CheckedChange(object sender, EventArgs e)
         {
             if(textureHelper == null)
             {
-                //var radio = sender as RadioButton;
-                //if (radio.Checked == true)
-                //{
-                //    radio.Checked = false;
-                //    MessageBox.Show("Please load a texture first.");
-                //}
-                //return;
+                var radio = sender as RadioButton;
+                if (radio.Checked == true)
+                {
+                    radio.Checked = false;
+                    MessageBox.Show("Please load a texture first.");
+                }
+                return;
             }
             else
             {
@@ -348,7 +384,7 @@ namespace GKbezierSurface
             colorsPanel.Controls.Add(objectColorButton);
 
             RadioButton solidColorRadio = new RadioButton() { Text = "Solid Color" };
-            textureRadio = new RadioButton() { Text = "Texture" };
+            textureRadio = new RadioButton() { Text = "Texture"};
             colorsPanel.Controls.Add(solidColorRadio);
             colorsPanel.Controls.Add(textureRadio);
 
@@ -364,8 +400,10 @@ namespace GKbezierSurface
 
             renderOptionsPanel.Controls.Add(new CheckBox() { Text = "Draw Wireframe" });
             renderOptionsPanel.Controls.Add(new CheckBox() { Text = "Fill Triangles" });
-            renderOptionsPanel.Controls.Add(new CheckBox() { Text = "Enable Normal Map" });
-            renderOptionsPanel.Controls.Add(new Button() { Text = "Load Normal Map" });
+            normalMapEnableCheckBox = new CheckBox() { Text = "Enable Normal Map" };
+            renderOptionsPanel.Controls.Add(normalMapEnableCheckBox);
+            loadNormalMapButton = new Button() { Text = "Load Normal Map" };
+            renderOptionsPanel.Controls.Add(loadNormalMapButton);
 
             // Light Animation GroupBox
             GroupBox lightAnimationGroup = new GroupBox() { Text = "Light Animation", Width = 230 };
