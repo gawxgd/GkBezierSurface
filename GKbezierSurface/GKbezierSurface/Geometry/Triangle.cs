@@ -48,7 +48,9 @@ namespace GKbezierPlain.Geometry
 
                     using (Pen pen = new Pen(Color.Black, 1))
                     {
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                         g.DrawPolygon(pen, points);
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                     }
 
                     break;
@@ -56,7 +58,9 @@ namespace GKbezierPlain.Geometry
                 case 1: 
                     using (Pen pen = new Pen(Color.Black, 1))
                     {
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                         g.DrawPolygon(pen, points);
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                     }
                     break;
 

@@ -67,7 +67,6 @@ namespace GKbezierSurface
                 graphics.TranslateTransform(bufferBitmap.Width / 2.0f, -bufferBitmap.Height / 2.0f);
                 
                 graphics.Clear(Color.White);
-
                 mesh.DrawMesh(graphics, drawType, colorConfiguration);
             }
 
