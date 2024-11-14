@@ -18,5 +18,15 @@ namespace GKbezierPlain.Algorithm
             vertex.TangentVRotated = Vector3.Transform(vertex.TangentV, rotation);
             vertex.NormalRotated = Vector3.Transform(vertex.Normal, rotation);
         }
+
+        public static Vector3 RotateControlPoint(Vector3 point, float alpha, float beta)
+        {
+            Quaternion rotationZ = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, alpha);
+            Quaternion rotationX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, beta);
+
+            Quaternion rotation = Quaternion.Concatenate(rotationZ, rotationX);
+
+            return  Vector3.Transform(point, rotation);
+        }
     }
 }

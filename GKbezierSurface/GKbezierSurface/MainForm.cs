@@ -23,7 +23,7 @@ namespace GKbezierSurface
         public const int CONTROL_POINTS_COUNT = 16;
         public const int GRID_COUNT = 4;
 
-        public Mesh mesh = new Mesh();
+        public Mesh mesh;
         private Vector3[,] controlPoints;
 
         private TrackBar alphaSlider;
@@ -75,8 +75,10 @@ namespace GKbezierSurface
                 var beta = betaSlider.Value;
 
                 controlPoints = bezierOps.ControlPoints;
+                mesh = new Mesh(controlPoints);
                 
                 TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
+                mesh.RotateControlPoints(alpha, beta);
                 var colorConfig = SetColorConfiguration();
 
                 drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex, colorConfig);
@@ -109,6 +111,7 @@ namespace GKbezierSurface
             var beta = betaSlider.Value;
 
             TriangulationAlgorithm.TriangulateSurface(controlPoints, mesh, triangulationSlider.Value, alpha, beta);
+            mesh.RotateControlPoints(alpha, beta);
             var colorConfig = SetColorConfiguration();
 
             drawingHelper.Draw(mesh, drawTypeComboBox.SelectedIndex,colorConfig);
