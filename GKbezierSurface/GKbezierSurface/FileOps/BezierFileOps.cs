@@ -13,13 +13,11 @@ namespace GKbezierPlain.FileOps
     {
         public Vector3[,] ControlPoints { get; private set; }
 
-        // Constructor initializing ControlPoints for a 4x4 grid
         public BezierFileOps()
         {
             ControlPoints = new Vector3[MainForm.GRID_COUNT, MainForm.GRID_COUNT];
         }
 
-        // Method to load control points from a file
         public bool LoadControlPoints(string filePath)
         {
             try

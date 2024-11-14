@@ -8,19 +8,16 @@ namespace GKbezierPlain.Geometry
 {
     public class Vertex
     {
-        // Coordinates and vectors before rotation
-        public Vector3 Position { get; set; } // P before rotation
-        public Vector3 TangentU { get; set; } // Pu before rotation
-        public Vector3 TangentV { get; set; } // Pv before rotation
-        public Vector3 Normal { get; set; }   // N before rotation
+        public Vector3 Position { get; set; } 
+        public Vector3 TangentU { get; set; } 
+        public Vector3 TangentV { get; set; } 
+        public Vector3 Normal { get; set; }   
 
-        // Coordinates and vectors after rotation
-        public Vector3 PositionRotated { get; set; } // P after rotation
-        public Vector3 TangentURotated { get; set; } // Pu after rotation
-        public Vector3 TangentVRotated { get; set; } // Pv after rotation
-        public Vector3 NormalRotated { get; set; }   // N after rotation
+        public Vector3 PositionRotated { get; set; } 
+        public Vector3 TangentURotated { get; set; } 
+        public Vector3 TangentVRotated { get; set; } 
+        public Vector3 NormalRotated { get; set; }   
 
-        // Triangulation Parameters
         public double OriginU { get; set; }
         public double OriginV { get; set; }
 
@@ -44,7 +41,7 @@ namespace GKbezierPlain.Geometry
 
             OriginU = u;
             OriginV = v;
-            // Initially, rotated values are the same as original
+
             PositionRotated = Position;
             TangentURotated = TangentU;
             TangentVRotated = TangentV;

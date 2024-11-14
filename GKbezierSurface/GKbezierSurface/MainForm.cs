@@ -185,18 +185,10 @@ namespace GKbezierSurface
         {
             if (normalMapHelper == null)
             {
-                var checkBox = sender as CheckBox;
-                if (checkBox.Checked == true)
-                {
-                    checkBox.Checked = false;
-                    MessageBox.Show("Please load a normalMap first.");
-                }
-                return;
+                normalMapHelper = new NormalMapHelper();
+                normalMapHelper.LoadDeafault();
             }
-            else
-            {
-                drawComboValueChanged(sender, e);
-            }
+            drawComboValueChanged(sender, e);
         }
 
         private void NormalMapButton_Click(object sender, EventArgs e)
@@ -217,20 +209,12 @@ namespace GKbezierSurface
 
         private void TextureRadio_CheckedChange(object sender, EventArgs e)
         {
-            if(textureHelper == null)
+            if (textureHelper == null)
             {
-                var radio = sender as RadioButton;
-                if (radio.Checked == true)
-                {
-                    radio.Checked = false;
-                    MessageBox.Show("Please load a texture first.");
-                }
-                return;
+                textureHelper = new TextureHelper();
+                textureHelper.LoadDeafault();
             }
-            else
-            {
-                drawComboValueChanged(sender, e);
-            }
+            drawComboValueChanged(sender, e);
         }
 
         private void ObjectColorButton_Click(object sender, EventArgs e)
@@ -356,15 +340,15 @@ namespace GKbezierSurface
             FlowLayoutPanel lightingPanel = new FlowLayoutPanel() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown };
             lightingGroup.Controls.Add(lightingPanel);
 
-            lightingPanel.Controls.Add(new Label() { Text = "Diffuse Coeff (kd)" });
+            lightingPanel.Controls.Add(new Label() { Text = "Diffuse (kd)" });
             kdSlider = new TrackBar() { Minimum = 0, Maximum = 100, TickFrequency = 10 };
             lightingPanel.Controls.Add(kdSlider);
 
-            lightingPanel.Controls.Add(new Label() { Text = "Specular Coeff (ks)" });
+            lightingPanel.Controls.Add(new Label() { Text = "Specular (ks)" });
             ksSlider = new TrackBar() { Minimum = 0, Maximum = 100, TickFrequency = 10 };
             lightingPanel.Controls.Add(ksSlider);
 
-            lightingPanel.Controls.Add(new Label() { Text = "Reflection Exp (m)" });
+            lightingPanel.Controls.Add(new Label() { Text = "Reflection (m)" });
             mSlider = new TrackBar() { Minimum = 1, Maximum = 100, TickFrequency = 5 };
             lightingPanel.Controls.Add(mSlider);
 
@@ -398,8 +382,6 @@ namespace GKbezierSurface
             FlowLayoutPanel renderOptionsPanel = new FlowLayoutPanel() { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown };
             renderOptionsGroup.Controls.Add(renderOptionsPanel);
 
-            renderOptionsPanel.Controls.Add(new CheckBox() { Text = "Draw Wireframe" });
-            renderOptionsPanel.Controls.Add(new CheckBox() { Text = "Fill Triangles" });
             normalMapEnableCheckBox = new CheckBox() { Text = "Enable Normal Map" };
             renderOptionsPanel.Controls.Add(normalMapEnableCheckBox);
             loadNormalMapButton = new Button() { Text = "Load Normal Map" };

@@ -23,8 +23,6 @@ namespace GKbezierPlain.Geometry
 
         public void DrawMesh(Graphics g, int drawType, CalculateColorConfiguration colorConfiguration)
         {
-            //g.Clear(Color.White);
-
             foreach (var triangle in Triangles)
             {
                 triangle.DrawTriangle(g, drawType, colorConfiguration);

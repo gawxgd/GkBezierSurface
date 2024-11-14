@@ -51,7 +51,6 @@
     <Compile Include="Algorithm\BarycentricAndInterpolationAlgorithm.cs" />
     <Compile Include="Algorithm\CalculateColorAlgorithm.cs" />
     <Compile Include="Algorithm\FillPolygonAlgorithmWithBucketSort.cs" />
-    <Compile Include="Algorithm\FillPolygonAlgorithm.cs" />
     <Compile Include="Algorithm\MathHelper.cs" />
     <Compile Include="Algorithm\RotationAlgorithm.cs" />
     <Compile Include="Algorithm\TriangulationAlgorithm.cs" />
@@ -94,6 +93,14 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\points.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\normal.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\texture.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

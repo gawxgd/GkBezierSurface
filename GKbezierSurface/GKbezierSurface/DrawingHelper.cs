@@ -38,7 +38,6 @@ namespace GKbezierSurface
 
         private void DrawBuffer()
         {
-            //(bufferBitmap, pictureBox.Image) = (pictureBox.Image as Bitmap, bufferBitmap);
             var temp = bufferBitmap;
             bufferBitmap = pBox.Image as Bitmap;
             pBox.Image = temp;

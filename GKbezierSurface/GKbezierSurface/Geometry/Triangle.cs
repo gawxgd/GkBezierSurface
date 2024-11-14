@@ -17,7 +17,6 @@ namespace GKbezierPlain.Geometry
             Vertex1 = v1;
             Vertex2 = v2;
             Vertex3 = v3;
-            //IsValidTraingle(v1.Position, v2.Position, v3.Position);
         }
         public bool IsValidTriangle(Vector3 v1, Vector3 v2, Vector3 v3)
         {
@@ -44,7 +43,6 @@ namespace GKbezierPlain.Geometry
             {
                 case 0:
                     FillPolygonWithBucketSort.FillPolygon(g, colorConfiguration, new Vertex[] { Vertex1, Vertex2, Vertex3 },this);
-                    //FillPolygonAlgorithm.FillPolygon(g, points, color);
 
                     using (Pen pen = new Pen(Color.Black, 1))
                     {
